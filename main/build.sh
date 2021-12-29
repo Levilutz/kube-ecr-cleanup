@@ -22,7 +22,7 @@ buildah config --entrypoint "python3 /src/entrypoint.py" $container
 buildah config --author "Levi Lutz (contact.levilutz@gmail.com)" $container
 
 echo "Building container to image"
-buildah commit $container ecr-cleanup-main
+buildah commit $container kube-ecr-cleanup-main
 
 echo "Cleaning up"
 buildah rm $container
