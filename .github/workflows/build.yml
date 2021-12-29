@@ -1,0 +1,49 @@
+name: Build
+
+on: [push]  # No manual runs, workflow needs GITHUB_REF_NAME
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build Main
+        run: ./main/build.sh
+
+      - name: Login to Docker Hub
+        run: |
+          buildah login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} ${{ secrets.DOCKER_SERVER }}
+
+      - name: Setup Env
+        run: |
+          repo=${{ secrets.DOCKER_SERVER }}/kube-ecr-cleanup
+          if [ -z $GITHUB_REF_NAME ]
+          then
+            echo "Needs to run from branch"
+            exit 1
+          fi
+          if [ -z $GITHUB_SHA ]
+          then
+            echo "Needs to run from commit"
+            exit 1
+          fi
+          tag_base="$GITHUB_REF_NAME-$GITHUB_SHA"
+          echo "repo=$repo" >> $GITHUB_ENV
+          echo "tag_base=$tag_base" >> $GITHUB_ENV
+
+      - name: Push Main
+        run: |
+          repo=${{ env.repo }}
+          tag_base=${{ env.tag_base }}
+          buildah tag kube-ecr-cleanup-main $repo:$tag_base-main
+          buildah push $repo:$tag_base-main
+
+      - name: Push Main, Tag latest
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          repo=${{ env.repo }}
+          buildah tag kube-ecr-cleanup-main $repo:latest-main
+          buildah push $repo:latest-main
