@@ -5,7 +5,6 @@ import os
 from typing import Dict, List
 
 import boto3
-from botocore.client import ECR
 
 
 def extract_env() -> Dict[str, str]:
@@ -20,11 +19,12 @@ def extract_env() -> Dict[str, str]:
         "GITHUB_DEPLOY_KEY_PRI_64",
         "COMMITS_PER_BRANCH",
     ]
-    env = {}
+    env: Dict[str, str] = {}
     for var_name in expected:
-        env[var_name] = os.getenv(var_name)
-        if not env[var_name]:  # Disallow empty strings
+        val = os.getenv(var_name)
+        if val is None or not val:  # Disallow empty strings
             raise Exception(f"No value for {var_name}")
+        env[var_name] = val
     return env
 
 
@@ -105,7 +105,7 @@ def prepare_aws(access_key_id: str, secret_access_key: str, region: str) -> None
         cred_file.write("\n".join(lines))
 
 
-def get_images(ecr_client: ECR, repository_name: str) -> List[Dict]:
+def get_images(ecr_client, repository_name: str) -> List[Dict]:
     """Get all images from a repository."""
     return ecr_client.list_images(repositoryName=repository_name)["imageIds"]
 
@@ -114,13 +114,13 @@ def get_bad_tags(images: List[Dict], tag_whitelist: List[str]) -> List[str]:
     """Filter a list of images for non-whitelisted tags."""
     bad_tags = []
     for image in images:
-        image_tag = image.get("imageTag")
+        image_tag = image.get("imageTag", "")
         if image_tag not in tag_whitelist:
             bad_tags.append(image_tag)
     return bad_tags
 
 
-def delete_images(ecr_client: ECR, repository_name: str, bad_tags: List[str]) -> None:
+def delete_images(ecr_client, repository_name: str, bad_tags: List[str]) -> None:
     """Delete images from a list."""
     # Convert shape to what boto3 expects
     boto_input = [{"imageTag": tag} for tag in bad_tags]
