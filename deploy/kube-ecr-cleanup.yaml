@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kube-ecr-cleanup
+spec:
+  schedule: "0 */12 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: main
+            image: docker.io/levilutz/kube-ecr-cleanup:latest-main
+            imagePullPolicy: Always
+            env:
+            - name: AWS_ACCESS_KEY_ID
+              value: "YOUR AWS_ACCESS_KEY_ID"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "YOUR AWS_SECRET_ACCESS_KEY"
+            - name: AWS_DEFAULT_REGION
+              value: "YOUR AWS_DEFAULT_REGION"
+            - name: ECR_REPOSITORY_NAME
+              value: "YOUR ECR_REPOSITORY_NAME"
+            - name: CONTAINER_NAMES
+              value: "YOUR CONTAINER_NAMES"
+            - name: GITHUB_REPOSITORY
+              value: "YOUR GITHUB_REPOSITORY"
+            - name: GITHUB_DEPLOY_KEY_PRI_64
+              value: "YOUR GITHUB_DEPLOY_KEY_PRI_64"
+            - name: COMMITS_PER_BRANCH
+              value: "YOUR COMMITS_PER_BRANCH"
+          restartPolicy: OnFailure
