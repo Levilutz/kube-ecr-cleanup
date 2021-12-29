@@ -26,5 +26,3 @@ buildah commit $container ecr-cleanup-main
 
 echo "Cleaning up"
 buildah rm $container
-rm awscliv2.zip
-rm -r aws
