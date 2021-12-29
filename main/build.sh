@@ -11,7 +11,7 @@ buildah run $container apk add --no-cache git
 buildah run $container apk add --no-cache openssh
 
 echo "Copying src to container"
-buildah copy $container src /src
+buildah copy $container main/src /src
 
 echo "Installing python packages into container"
 buildah run $container python3 -m pip install --upgrade pip
