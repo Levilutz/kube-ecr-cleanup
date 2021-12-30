@@ -148,11 +148,11 @@ def main():
     images = get_images(
         ecr_client=ecr_client, repository_name=env["ECR_REPOSITORY_NAME"]
     )
-    bad_tags = get_bad_images(images=images, tag_whitelist=tag_whitelist)
+    bad_images = get_bad_images(images=images, tag_whitelist=tag_whitelist)
     delete_images(
         ecr_client=ecr_client,
         repository_name=env["ECR_REPOSITORY_NAME"],
-        bad_tags=bad_tags,
+        bad_images=bad_images,
     )
 
 
