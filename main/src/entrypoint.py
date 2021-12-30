@@ -133,7 +133,7 @@ def main():
     """Run the entrypoint script."""
     env = extract_env()
     prepare_git(deploy_key_64=env["GITHUB_DEPLOY_KEY_PRI_64"])
-    container_names = env["CONTAINER_NAMES"].split(",")
+    container_names = [name.strip() for name in env["CONTAINER_NAMES"].split(",")]
     tag_whitelist = get_tag_whitelist(
         github_repository=env["GITHUB_REPOSITORY"],
         container_names=container_names,
