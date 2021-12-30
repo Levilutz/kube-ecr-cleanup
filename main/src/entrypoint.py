@@ -1,6 +1,5 @@
 """Entrypoint for ecr cleanup."""
 
-import json  # orjson doesn't install right on python:3.9-alpine
 import os
 from typing import Dict, List
 
@@ -149,7 +148,7 @@ def main():
     images = get_images(
         ecr_client=ecr_client, repository_name=env["ECR_REPOSITORY_NAME"]
     )
-    bad_tags = get_bad_tags(images=images, tag_whitelist=tag_whitelist)
+    bad_tags = get_bad_images(images=images, tag_whitelist=tag_whitelist)
     delete_images(
         ecr_client=ecr_client,
         repository_name=env["ECR_REPOSITORY_NAME"],
