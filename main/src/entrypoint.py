@@ -149,6 +149,7 @@ def main():
         ecr_client=ecr_client, repository_name=env["ECR_REPOSITORY_NAME"]
     )
     bad_images = get_bad_images(images=images, tag_whitelist=tag_whitelist)
+    print(f"Deleting images: {bad_images}")
     delete_images(
         ecr_client=ecr_client,
         repository_name=env["ECR_REPOSITORY_NAME"],
