@@ -129,7 +129,7 @@ def delete_images(ecr_client, repository_name: str, bad_images: List[Dict]) -> N
     ecr_client.batch_delete_image(repositoryName=repository_name, imageIds=bad_images)
 
 
-def main():
+def main() -> None:
     """Run the entrypoint script."""
     env = extract_env()
     prepare_git(deploy_key_64=env["GITHUB_DEPLOY_KEY_PRI_64"])
@@ -149,6 +149,10 @@ def main():
         ecr_client=ecr_client, repository_name=env["ECR_REPOSITORY_NAME"]
     )
     bad_images = get_bad_images(images=images, tag_whitelist=tag_whitelist)
+    if not bad_images:
+        print("No images to delete!")
+        return
+    print(f"Deleting images: {bad_images}")
     delete_images(
         ecr_client=ecr_client,
         repository_name=env["ECR_REPOSITORY_NAME"],
