@@ -110,23 +110,24 @@ def get_images(ecr_client, repository_name: str) -> List[Dict]:
     return ecr_client.list_images(repositoryName=repository_name)["imageIds"]
 
 
-def get_bad_tags(images: List[Dict], tag_whitelist: List[str]) -> List[str]:
-    """Filter a list of images for non-whitelisted tags."""
-    bad_tags = []
+def get_bad_images(images: List[Dict], tag_whitelist: List[str]) -> List[Dict]:
+    """Filter a list of images for non-whitelisted tags or no tags."""
+    bad_images = []
     for image in images:
         image_tag = image.get("imageTag", "")
-        if image_tag not in tag_whitelist:
-            bad_tags.append(image_tag)
-    return bad_tags
+        image_digest = image.get("imageDigest", "")
+        if not image_tag and not image_digest:
+            print("Found entirely blank image")
+        elif not image_tag:
+            bad_images.append({"imageDigest": image_digest})
+        elif image_tag not in tag_whitelist:
+            bad_images.append({"imageTag": image_tag})
+    return bad_images
 
 
-def delete_images(ecr_client, repository_name: str, bad_tags: List[str]) -> None:
+def delete_images(ecr_client, repository_name: str, bad_images: List[Dict]) -> None:
     """Delete images from a list."""
-    # Convert shape to what boto3 expects
-    boto_input = [{"imageTag": tag} for tag in bad_tags]
-
-    # Perform the delete
-    ecr_client.batch_delete_image(repositoryName=repository_name, imageIds=boto_input)
+    ecr_client.batch_delete_image(repositoryName=repository_name, imageIds=bad_images)
 
 
 def main():
