@@ -1,6 +1,8 @@
 # kube-ecr-cleanup
 Clean up AWS ECR images based on a git repo
 
+- this is out-of-date, a newer version exists in a private repo. I'll pull that out some time
+
 # Future Work
 * Fill out this readme
 * Package with Helm
